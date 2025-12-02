@@ -70,7 +70,7 @@ def login(username, password):
     response = session.post(LOGIN_URL, data=login_data, headers=LOGIN_HEADERS)  
     
     new_cookie = session.cookies.get_dict()
-    print(new_cookie)
+    
     if new_cookie != cookie:
         logging.info("[+] Successful login!")
     else:
@@ -109,11 +109,14 @@ def get_auctions(session):
         auctions.append({"id": aid, "end": end_ts, "current": current})
 
     if not auctions:
+        
         logging.error("[-] No auctions found on bidding.php")
         return []
 
     active = [a for a in auctions if a["end"] > now]
+    
     if not active:
+        
         logging.warning("[!] All auctions appear ended based on data-end timestamps.")
         active = auctions
 
