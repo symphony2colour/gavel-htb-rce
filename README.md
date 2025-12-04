@@ -82,9 +82,9 @@ It chains several application flaws to obtain a **remote shell** as the auction 
    A successful bid triggers the injected rule for that auction, causing the PHP reverse shell to be written.
 
 5. **Reverse shell execution**  
-   Finally, it:
+   Finally, script performs following actions:
 
-   - Optionally starts a local `nc -lvnp <port>` listener
+   - Starts a local `nc -lvnp <port>` listener
    - Performs a GET request to:
      `http://gavel.htb/includes/<generated_shell_name>`
    - The PHP payload connects back to the listener with an interactive `/bin/bash -i` session.
@@ -106,8 +106,8 @@ pip install requests
 
 ## Usage
 
-> `Make sure you are connected to the **Hack The Box VPN**`.
-> `Link VPN IP to gavel.htb in /etc/hosts file`
+> Make sure you are connected to the **Hack The Box VPN**.
+> Link VPN IP to gavel.htb in /etc/hosts file
 
 ### Basic usage (with auto listener)
 
