@@ -11,7 +11,7 @@ It chains several application flaws to obtain a **remote shell** as the auction 
 - Triggering a **reverse shell** via a generated PHP payload
 
 > **For CTF / lab use only.**  
-> This PoC is tailored for the HTB environment (`gavel.htb`) and must **not** be used against systems you don’t own or have explicit permission to test.
+> This PoC is made for the HTB environment (`gavel.htb`) and must **not** be used against systems you don’t own or have explicit permission to test.
 
 ---
 
