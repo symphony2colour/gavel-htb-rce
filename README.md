@@ -184,6 +184,11 @@ optional arguments:
 
 ---
 
+## PoC (Screenshot):
+
+![PoC](screenshot/gavel-rce.png)
+
+---
 ## Legal & Ethical Notice
 
 This code is written **specifically for the Hack The Box machine "Gavel"** and is intended **only** for:
