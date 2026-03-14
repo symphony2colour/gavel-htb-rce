@@ -2,7 +2,7 @@
 
 <p align="center">
   <img alt="platform" src="https://img.shields.io/badge/platform-Hack%20The%20Box-darkgreen">
-  <img alt="machine" src="https://img.shields.io/badge/machine-Gavel-red">
+  <img alt="machine" src="https://img.shields.io/badge/machine-HTB%20Gavel%20(retired)-red">
   <img alt="vulnerability" src="https://img.shields.io/badge/vulnerability-Server--Side%20Rule%20Injection-orange">
   <img alt="impact" src="https://img.shields.io/badge/impact-Remote%20Code%20Execution-critical">
   <img alt="payload" src="https://img.shields.io/badge/payload-PHP%20Reverse%20Shell-black">
