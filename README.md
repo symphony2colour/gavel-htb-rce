@@ -1,5 +1,16 @@
 # HTB "Gavel" — Automated Auction Rule → RCE Exploit
 
+<p align="center">
+  <img alt="platform" src="https://img.shields.io/badge/platform-Hack%20The%20Box-darkgreen">
+  <img alt="machine" src="https://img.shields.io/badge/machine-Gavel-red">
+  <img alt="exploit" src="https://img.shields.io/badge/exploit-Auction%20Rule%20Injection-orange">
+  <img alt="impact" src="https://img.shields.io/badge/impact-RCE-critical">
+  <img alt="language" src="https://img.shields.io/badge/language-Python-blue">
+  <img alt="python" src="https://img.shields.io/badge/python-3.8%2B-yellow">
+  <img alt="category" src="https://img.shields.io/badge/category-CTF%20Exploit-purple">
+  <img alt="license" src="https://img.shields.io/badge/license-MIT-green">
+</p>
+
 **Made by [copper_nail](https://app.hackthebox.com/users/1510938) aka `symphony2colour`**
 
 This repository contains an automated Python exploit for the Hack The Box machine **Gavel**.  
